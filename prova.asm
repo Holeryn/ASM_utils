@@ -1,4 +1,4 @@
-%include "Utils.mac"
+%include "Utils.asm"
 
 segment .text
 name db "file2.text",0
