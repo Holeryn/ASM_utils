@@ -60,7 +60,7 @@
 ;params : 1, fd = File Descriptor, 2 = *buffer, 3 = counter
 %macro WRITE 3
     mov     eax,0x04    ;EAX = sys_write
-    mov     ebx,%1      ;EBX = File Descripto
+    mov     ebx,%1      ;EBX = File Descripton
     mov     ecx,%2      ;ECX = *buffer
     mov     edx,%3      ;EDX = counter
     int     0x80        ;Call system
@@ -106,8 +106,59 @@
 ;link - creates a hard link to an existing File
 ;Params : 1, old_name, 2, new_name
 %macro LINK 2
-    mov     eax,0x09        ;EAX = 0X09
+    mov     eax,0x09        ;EAX = 0x09
     mov     ebx,%1          ;EBX = old_name
     mov     ecx,%2          ;ECX = new_name
+    int     0x80            ;Call System
+%endmacro
+
+;unlink - delete a name and possibly the file it refers to
+;Params : 1, pathname
+;On success, zero is returned.  On error, -1 is returned, and errno is set appropriately.
+%macro UNLINK 1
+    mov     eax,0x0A        ;EAX = 0x0A
+    mov     ebx,%1          ;EBX = pathname
+    int     0x80            ;Call System
+%endmacro
+
+;execve - Executes the program referred to by pathname
+;Params : 1, pathname , 2 argv[], 3 envp[]
+;Return :  On success, execve() does not return, on error -1 is returned, and errno is set appropriately.
+%macro EXECVE 3
+    mov     eax,0x0B        ;EAX = 0x0B
+    mov     ebx,%1          ;EBX = Pathname
+    mov     ecx,%2          ;ECX = argv[]
+    mov     edx,%3          ;EDX = envp[]
+    int     0x80            ;Call System
+%endmacro
+
+;chdir -  changes the current working directory of the calling process to the directory specified in path.
+;Params : 1, path
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is set appropriately.
+%macro CHDIR 1
+    mov     eax,0x0C        ;EAX = 0x0C
+    mov     ebx,%1          ;EBX = Path
+    int     0x80            ;Call System
+%endmacro
+
+;time - get time in seconds
+;Params : 1, tloc
+%macro TIME 1
+    mov     eax,0x0D        ;EAX = 0x0D
+    mov     ebx,%1          ;EBX = TLOC
+    int     0x80            ;Call System
+%endmacro
+
+;The system call mknod creates a filesystem node (file, device
+;special file, or named pipe) named pathname, with attributes
+;specified by mode and dev.
+;params : 1,pathname, 2 mode, 3 dev
+;Return : mknod() and mknodat() return zero on success, or -1 if an error
+;occurred (in which case, errno is set appropriately).
+%macro MKNOD 3
+    mov     eax,0x0E        ;EAX = 0x0E
+    mov     ebx,%1          ;EBX = Pathname
+    mov     ecx,%2          ;ECX = Mode
+    mov     edx,%3          ;EDX = Dev
     int     0x80            ;Call System
 %endmacro
