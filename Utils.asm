@@ -252,3 +252,90 @@
     mov ebx,%1             ;EBX = name
     int 0x80               ;Call System
 %endmacro
+
+;SETUID - Set the UID
+;Parmaters : 1, UID
+;Returns :  On success, zero is returned.  On error, -1 is returned, and errno is set appropriately.
+%macro SETUID 1
+    mov eax,0x17            ;EAX = 0x17
+    mov ebx,%1              ;EBX = UID
+    int 0x80                ;Call System
+%endmacro
+
+;GETUID - Return the current UID
+;Parameters : void
+;Return : The UID, On success, zero is returned.  On error, -1 is returned, and errno is set appropriately.
+%macro GETUID 0
+    mov eax,0x18            ;EAX = 0x18
+    int 0x80                ;Call System
+%endmacro
+
+;STIME - SET TIME
+;Parameters : 1, POINTER TO THE TIME
+;RETURN : On success, zero is returned.  On error, -1 is returned, and errno is set appropriately.
+%macro STIME 1
+    mov eax,0x19            ;EAX = 0x19
+    mov ebx,%1              ;EBX = Pointer Time
+    int 0x80                ;Call System
+%endmacro
+
+;PTRACE - Process Trace
+;Parameters : 1, request,2 pid, 3 addr, 4, data
+;Return : On success, the PTRACE_PEEK* requests return the requested data (but
+;see NOTES), the PTRACE_SECCOMP_GET_FILTER request returns the number
+;of instructions in the BPF program, and other requests return zero.
+;On error, all requests return -1, and errno is set appropriately.
+;Since the value returned by a successful PTRACE_PEEK* request may be
+;-1, the caller must clear errno before the call, and then check it
+;afterward to determine whether or not an error occurred.
+%macro PTRACE 4
+    mov eax,0x1A            ;EAX = 0x1A
+    mov ebx,%1              ;Ebx = Request
+    mov ecx,%2              ;Ecx = PID
+    mov edx,%3              ;EDX = ADDR
+    mov esi,%4              ;ESI = data
+    int 0x80                ;Call SYstem
+%endmacro
+
+;ALARM - Set an alarm clock for delivery of a signal
+;Parameters : 1,seconds
+;Return : alarm() returns the number of seconds remaining until any previously
+;scheduled alarm was due to be delivered, or zero if there was no
+;previously scheduled alarm.
+%macro ALARM 1
+    mov eax,0x1B            ;EAX = 0x1B
+    mov ebx,%1              ;EBX = seconds
+    int 0x80                ;Call System
+%endmacro
+
+;FSTAT - Get File Status
+;Parametrs : 1,File Descriptor,2, statbuf
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro FSTAT 2
+    mov eax,0x1C            ;EAX = 0x1C
+    mov ebx,%1              ;EBX = FIle Descriptor
+    mov ecx,%2              ;ECX = StatBuf
+    int 0x80                ;Call System
+%endmacro
+
+;PAUSE - WAIT FOR A SIGNAL
+;Parameters : VOID
+;Return : pause() returns only when a signal was caught and the signal-catching
+;function returned.  In this case, pause() returns -1, and errno is
+;set to EINTR.
+%macro PAUSE 0
+    mov eax,0x1D            ;EAX = 0x1D
+    int 0x80                ;Call System
+%endmacro
+
+;Utime - Change file last access and modification times
+;Parameters : 1,FileName,2 times
+;Return :On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro UTIME 2
+    mov eax,0x1E            ;EAX = 0x1E
+    mov ebx,%1              ;EBX = FIleName
+    mov ecx,%2              ;ECX = Times
+    int 0x80                ;Call Syste
+%endmacro
