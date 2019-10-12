@@ -28,6 +28,15 @@
 %define S_IWOTH 00002   ;Write By Others
 %define S_IXOTH 00001   ;EXECUTE / SEARCH by Others 
 
+;INC for premission
+%define LOW_PRIORITY    19  ;LOW PRIORITY
+%define HIGH_PRIORITY   -20 ;High Priority 
+
+;KILL MACROS  
+%define SEND_TO_ALL_PROCESS_ID                  0
+%define SEND_TO_ALL_PERMISSION_CALLING_PROCESS  -1
+%define SEND_TO_ALL_PROCESS_INTO_GROUP          -2
+
 ;Valuse of PID Options
 ;meaning wait for any child process whose process group ID is
 ;equal to the absolute value of pid.
@@ -332,10 +341,69 @@
 ;Utime - Change file last access and modification times
 ;Parameters : 1,FileName,2 times
 ;Return :On success, zero is returned.  On error, -1 is returned, and errno is
-;set appropriately.
+;set appropriately. 
 %macro UTIME 2
     mov eax,0x1E            ;EAX = 0x1E
     mov ebx,%1              ;EBX = FIleName
     mov ecx,%2              ;ECX = Times
-    int 0x80                ;Call Syste
+    int 0x80                ;Call System
+%endmacro
+
+;ACCESS - chech user's permission for a file
+;Parameters : 1,Pathname,2 mode
+;Retrun : On success (all requested permissions granted, or mode is F_OK and
+;the file exists), zero is returned.  On error (at least one bit in
+;mode asked for a permission that is denied, or mode is F_OK and the
+;file does not exist, or some other error occurred), -1 is returned,
+;and errno is set appropriately.
+%macro ACCESS 2
+    mov eax,0x21            ;EAX = 0x21
+    mov ebx,%1              ;Ebx = FileName
+    mov ecx,%2              ;Ecx = Mode
+    int 0x80                ;Call System
+%endmacro
+
+;NICE - CHANGE PROCESS PRORITY
+;Parameters :1, inc 
+;Return : On success, the new nice value is returned (but see NOTES below).  On
+;error, -1 is returned, and errno is set appropriately.
+;A successful call can legitimately return -1.  To detect an error,
+;set errno to 0 before the call, and check whether it is nonzero after
+;nice() returns -1.
+%macro NICE 1
+    mov eax,0x22            ;EAX = 0x22
+    mov ebx,%1              ;EBX = inc
+    int 0x80                ;Call System
+%endmacro
+
+;SYNCFS - Commit FileSystem Caches to disk
+;Parameters : 1, fd
+;Return : syncfs() returns 0 on success; on error, it returns -1 and sets errno
+;to indicate the error.
+%macro SYNCFS 1
+    mov eax,0x24            ;EAX = 0x24
+    mov ebx,%1              ;EBX = File Descriptor
+    int 0x80                ;Call System
+%endmacro
+
+;KILL - Send A Signal To A Process
+;Parameters : 1, pid , 2 ,sig
+;Return :On success (at least one signal was sent), zero is returned.  On
+;error, -1 is returned, and errno is set appropriately.
+%macro KILL 2
+    mov eax,0x25            ;EAX = 0x25
+    mov ebx,%1              ;EBX = PID
+    mov ecx,%2              ;ECX = SIG
+    int 0x80                ;Call System
+%endmacro
+
+;RENAME - change the name or location of a file
+;Parameters : 1,oldpath,2 newpath
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro RENAME 2
+    mov eax,0x26            ;EAX = 0x26
+    mov ebx,%1              ;EBX = OLDPATH
+    mov ecx,%2              ;ECX = NEWPATH
+    int 0x80                ;Call System
 %endmacro
