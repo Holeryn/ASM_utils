@@ -1,7 +1,8 @@
 %include "Utils.asm"
 
 segment .text
-name db "file2.text",0
+name    db "file2.text",0
+name2   db "FILERENAMED.text",0
 
 
 
@@ -32,6 +33,10 @@ _start:
     WRITE STDOUT,PID,100
 
     STIME 9999999
+
+    KILL PID,1
+
+    RENAME name,name2
 
     PAUSE
 
