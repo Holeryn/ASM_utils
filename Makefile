@@ -1,5 +1,5 @@
 #for 8086 architecture
-all: prova.asm
+8086: prova.asm
 	nasm -f elf64 prova.asm -o prova.o
 	ld prova.o -o prova
 #for 80386 architeture
