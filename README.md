@@ -3,15 +3,19 @@ A collection of macro for linux syscall and utils in assembly
 
 # USE IT
 **step 1 :**
-compile with make ,
+compile with make , (If you want to use the prova.asm program)
 
 if you are using a 8086 processor you can use this
 
-$ make 8086
+```$ make 8086```
 
 if you are using a 80386 processor you can use this
 
-$ make i386
+```$ make i386```
+
+Include the ASM_utils library with this istruction :
+
+```%include "Utils.asm"```
 
 
 # Work In Progress
