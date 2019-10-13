@@ -407,3 +407,84 @@
     mov ecx,%2              ;ECX = NEWPATH
     int 0x80                ;Call System
 %endmacro
+
+;MKDIR - Create a directory
+;Parameters : 1,Pathname,2 Mode
+;Return : mkdir() and mkdirat() return zero on success, or -1 if an error
+;occurred (in which case, errno is set appropriately)
+%macro MKDIR 2
+    mov eax,0x27            ;EAX = 0x27
+    mov ebx,%1              ;EBX = Pathname
+    mov ecx,%2              ;ECX = Mode
+    int 0x80                ;Call System
+%endmacro
+
+;RMDIR - Delete a DIrectory - which must be empty
+;Parameters : 1,Pathname
+;Return :  On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro RMDIR 1
+    mov eax,0x28            ;EAX = 0x28
+    mov ebx,%1              ;EBX = Pathname
+    int 0x80                ;Call System
+%endmacro
+
+;dup - duplicare a file descriptor
+;Parameters : 1,old_fd
+;Return : On success, these system calls return the new file descriptor.  On
+;error, -1 is returned, and errno is set appropriately.
+%macro DUP 1
+    mov eax,0x29            ;EAX = 0x29
+    mov ebx,%1              ;EBX = OLD_FD
+    int 0x80                ;Call System
+%endmacro
+
+;PIP - Create Pipe
+;Parameters : 1,*fields
+;Return : On success, zero is returned.  On error, -1 is returned, errno is set
+;appropriately, and pipefd is left unchanged.
+%macro PIP 1
+    mov eax,0x2A            ;EAX = 0X2A
+    mov ebx,%1              ;EBX = *fields
+    int 0x80                ;Call System
+%endmacro
+
+;Times - Get Process TImes
+;Patameters : *buf
+;Return :     times() returns the number of clock ticks that have elapsed since an
+;arbitrary point in the past.  The return value may overflow the
+;possible range of type clock_t.  On error, (clock_t) -1 is returned,
+;and errno is set appropriately.
+%macro TIMES 1
+    mov eax,0x2B            ;EAX = 0x2B
+    mov ebx,%1              ;EBX = *buf
+    int 0x80                ;Call System
+%endmacro
+
+;times() Stores the current process time in the struct tms
+;that buf points to. The sctruct tms is as defined in <sys/time.h> :
+;IN C STYLE
+;struct tms {
+;               clock_t tms_utime;  /* user time */
+;               clock_t tms_stime;  /* system time */
+;               clock_t tms_cutime; /* user time of children */
+;               clock_t tms_cstime; /* system time of children */
+;           };
+;The tms_utime field contains the CPU time spent executing instruc‐
+;tions of the calling process.  The tms_stime field contains the CPU
+;time spent executing inside the kernel while performing tasks on
+;behalf of the calling process.
+;The tms_cutime field contains the sum of the tms_utime and tms_cutime
+;values for all waited-for terminated children.  The tms_cstime field
+;contains the sum of the tms_stime and tms_cstime values for all
+;waited-for terminated children.
+
+;BRK - Change Data Segment SIZE
+;Parameters : 1, addr
+;Return : On success, brk() returns zero.  On error, -1 is returned, and errno
+;is set to ENOMEM.
+%macro BRK 1
+    mov eax,0x2D            ;EAX = 0x2D
+    mov ebx,%1              ;EBX = brk
+    int 0x80                ;Call System
+%endmacro
