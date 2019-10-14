@@ -5,7 +5,7 @@ A collection of macro for linux syscall and utils in assembly
 **step 1 :**
 compile with make , (If you want to use the prova.asm program)
 
-if you are using a 8086 processor you can use this
+if you are using a x86_64 processor you can use this
 
 ```$ make 8086```
 
