@@ -54,6 +54,45 @@
 ;value of pid.
 %define WEAITING_EQUAL_PID  1
 
+;Macro for signal
+%define SIGHUP		 1
+%define SIGINT		 2
+%define SIGQUIT		 3
+%define SIGILL		 4
+%define SIGTRAP		 5
+%define SIGABRT		 6
+%define SIGIOT		 6
+%define SIGBUS		 7
+%define SIGFPE		 8
+%define SIGKILL		 9
+%define SIGUSR1		10
+%define SIGSEGV		11
+%define SIGUSR2		12
+%define SIGPIPE		13
+%define SIGALRM		14
+%define SIGTERM		15
+%define SIGSTKFLT	16
+%define SIGCHLD		17
+%define SIGCONT		18
+%define SIGSTOP		19
+%define SIGTSTP		20
+%define SIGTTIN		21
+%define SIGTTOU		22
+%define SIGURG		23
+%define SIGXCPU		24
+%define SIGXFSZ		25
+%define SIGVTALRM	26
+%define SIGPROF		27
+%define SIGWINCH	28
+%define SIGIO		29
+
+;UMOUNT OPTION
+%define MNT_FORCE	0x00000001	    ; Attempt to forcibily umount
+%define MNT_DETACH	0x00000002	    ; Just detach from the tree
+%define MNT_EXPIRE	0x00000004	    ; Mark for expiry
+%define UMOUNT_NOFOLLOW	0x00000008	; Don't follow symlink on umount
+%define UMOUNT_UNUSED	0x80000000	; Flag guaranteed to be unused 
+
 ;exit - terminate a program
 ;params : 1 ,int error code
 %macro EXIT 1
@@ -486,5 +525,88 @@
 %macro BRK 1
     mov eax,0x2D            ;EAX = 0x2D
     mov ebx,%1              ;EBX = brk
+    int 0x80                ;Call System
+%endmacro
+
+;!!!!!!!!!!!!!!!!!!
+;sys_setgid16 to do
+;sys_getgid16 to do
+;!!!!!!!!!!!!!!!!!!
+
+;SIGNAL - ANSI C Signal Handling
+;Parameters : 1,sig,2 handler
+;Return :signal() returns the previous value of the signal handler, or SIG_ERR
+;on error.  In the event of an error, errno is set to indicate the
+;cause.
+%macro SIGNAL 2
+    mov eax,0x30            ;EAX = 0x30
+    mov ebx,%1              ;EBX = SIG
+    mov ecx,%2              ;ECX = handler
+    int 0x80                ;Call System
+%endmacro
+
+;!!!!!!!!!!!!!!!!!!!
+;sys_geteuid16 to do
+;sys_getegid16 to do
+;!!!!!!!!!!!!!!!!!!!
+
+;ACCT - SWITCH PROCESS ACCOUNTING ON OR OFF
+;Parameters : 1,filename
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro ACCT 1
+    mov eax,0x33            ;EAX = 0x33
+    mov ebx,%1              ;EBX = name
+    int 0x80                ;Call System
+%endmacro
+
+;UMOUNT - unmount filesystem
+;Parameters : 1,name,2 flags
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro UMOUNT 2
+    mov eax,0x34            ;EAX = 0x34
+    mov ebx,%1              ;EBX = name
+    mov ecx,%2              ;ECX = flags
+    int 0x80                ;Call System
+%endmacro
+
+;LOCTL - Control Device
+;Parameters : 1,fd,2,cmd,arg
+;Return :Usually, on success zero is returned.  A few ioctl() requests use the
+;return value as an output parameter and return a nonnegative value on
+;success.  On error, -1 is returned, and errno is set appropriately.
+%macro LOCTL 3
+    mov eax,0x36            ;EAX = 0x36
+    mov ebx,%1              ;EBX = fd
+    mov ecx,%2              ;ECX = CMD
+    mov edx,%3              ;EDX = arg
+    int 0x80                ;Call System
+%endmacro
+
+;FCNTL - Manipulate File Descriptor
+;PARAMETERS : 1,fd,2,cmd,3,arg
+;Return : For a successful call, the return value depends on the operation:
+;F_DUPFD  The new file descriptor.
+;      F_GETFD  Value of file descriptor flags.
+;      F_GETFL  Value of file status flags.
+;      F_GETLEASE
+;                Type of lease held on file descriptor.
+;     F_GETOWN Value of file descriptor owner.
+;     F_GETSIG Value of signal sent when read or write becomes possible, or
+;               zero for traditional SIGIO behavior.
+;     F_GETPIPE_SZ, F_SETPIPE_SZ
+;               The pipe capacity.
+;     F_GET_SEALS
+;               A bit mask identifying the seals that have been set for the
+;               inode referred to by fd.
+;      All other commands
+;               Zero.
+;      On error, -1 is returned, and errno is set appropriately.
+%macro FCNTL 3
+    mov eax,0x37            ;EAX = 0x37
+    mov ebx,%1              ;EBX = fd
+    mov ecx,%2              ;ECX = CMD
+    mov edx,%3              ;EDX = arg
     int 0x80                ;Call System
 %endmacro
