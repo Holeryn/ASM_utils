@@ -19,7 +19,7 @@ Include the ASM_utils library with this istruction :
 
 
 # Work In Progress
-I, am curently writing this library.
+I, am currently writing this library.
 
 There is a small example program called prova.asm
 
