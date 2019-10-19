@@ -610,3 +610,93 @@
     mov edx,%3              ;EDX = arg
     int 0x80                ;Call System
 %endmacro
+
+
+;SETPGID - set Process Group
+;Required : 1,fd,2,cmd,3,arg
+;Return : On success, setpgid() and setpgrp() return zero.  On error, -1 is
+;returned, and errno is set appropriately.
+;The POSIX.1 getpgrp() always returns the PGID of the caller.
+;getpgid(), and the BSD-specific getpgrp() return a process group on
+;success.  On error, -1 is returned, and errno is set appropriately.
+%macro SETPGID 3
+    mov eax,0x39            ;EAX = 0x39
+    mov ebx,%1              ;EBX = fd
+    mov ecx,%2              ;ECX = cmd
+    mov edx,%3              ;EDX = arg
+    int 0x80                ;Call System
+%endmacro
+
+;UNAME - Get Name And Information About Current Kernel
+;Required : 1,buf
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro UNAME 1
+    mov eax,0x3b            ;EAX = 0x3B
+    mov ebx,%1              ;EBX = buf
+    int 0x80                ;CAll system
+%endmacro
+
+;UNMASK - Set File Mode Creation mASK
+;Required : 1,User
+;Return : This system call always succeeds and the previous value of the mask
+;is returned.
+%macro UNMASK 1
+    mov eax,0x3C            ;EAX = 0x03C
+    mov ebx,%1              ;EBX = User
+    int 0x80                ;Call System
+%endmacro
+
+;CHROOT - Change Root Directory
+;Required : 1, filename (path)
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro CHROOT 1
+    mov eax,0x3D            ;EAX = 0x3D
+    mov ebx,%1              ;EBX = Filename
+    int 0x80                ;Call System
+%endmacro
+
+;Get File Name Statistics
+;Required : 1,dev,2,ubuf
+;Return : On success, zero is returned and the ustat structure pointed to by
+;ubuf will be filled in.  On error, -1 is returned, and errno is set
+;appropriately.
+%macro USTAT 2
+    mov eax,0x3E            ;EAX = 0x3E
+    mov ebx,%1              ;EBX = DEV
+    mov ecx,%2              ;ECX = UBUF
+    int 0x80                ;Call System
+%endmacro
+
+;DUP2 - Duplicate a file descriptor
+;Required : 1,old_fd,2,new_fd
+;Return : On success, these system calls return the new file descriptor.  On
+;error, -1 is returned, and errno is set appropriately
+%macro DUP2 2
+    mov eax,0x3F            ;EAX = 0x3F
+    mov ebx,%1              ;EBX = old_fd
+    mov edx,%2              ;ECX = new_fd
+    int 0x80                ;Call System
+%endmacro
+
+;GETPPID - Get Process Identification
+;Required : VOID
+;Return : getppid() returns the process ID of the parent of the calling
+;process.  This will be either the ID of the process that created this
+;process using fork(), or, if that process has already terminated, the
+;ID of the process to which this process has been reparented (either
+;init(1) or a "subreaper" process defined via the prctl(2)
+;PR_SET_CHILD_SUBREAPER operation).
+%macro GETPPID 0
+    mov eax,0x40            ;EAX = 0x40
+    int 0x80                ;Call System
+%endmacro
+
+;GETPGRP - Set/Get Process Group
+;Required : void
+;Return :  The POSIX.1 getpgrp() always returns the PGID of the caller.
+%macro
+    mov eax,0x41            ;EAX = 0x41
+    int 0x80                ;Call System
+%endmacro
