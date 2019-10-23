@@ -676,7 +676,7 @@
 %macro DUP2 2
     mov eax,0x3F            ;EAX = 0x3F
     mov ebx,%1              ;EBX = old_fd
-    mov edx,%2              ;ECX = new_fd
+    mov ecx,%2              ;ECX = new_fd
     int 0x80                ;Call System
 %endmacro
 
@@ -696,7 +696,106 @@
 ;GETPGRP - Set/Get Process Group
 ;Required : void
 ;Return :  The POSIX.1 getpgrp() always returns the PGID of the caller.
-%macro
+%macro GETPGRP 0
     mov eax,0x41            ;EAX = 0x41
     int 0x80                ;Call System
 %endmacro
+
+;SETSID - Create a session and sets the process group ID
+;Required : void
+;Return : On success, the (new) session ID of the calling process is returned.
+;On error, (pid_t) -1 is returned, and errno is set to indicate the
+;error.
+%macro SETSID 0
+    mov eax,0x42            ;EAX = 0x42
+    int 0x80                ;Call System
+%endmacro
+
+;SIGACTION - Examine and change a signal action
+;Required : 1,signum,2,asigation act,3,oldact
+;Return : sigaction() returns 0 on success; on error, -1 is returned, and errno
+;is set to indicate the error.
+%macro SIGACTION 3
+    mov eax,0x43            ;EAX = 0x43
+    mov ebx,%1              ;EBX = signum
+    mov ecx,%2              ;EDX = act
+    mov edx,%3              ;EDX = OLD ACT
+    int 0x80                ;Call System
+%endmacro
+
+;Sigation structure
+;struct sigaction {
+;               void     (*sa_handler)(int);
+;               void     (*sa_sigaction)(int, siginfo_t *, void *);
+;               sigset_t   sa_mask;
+;               int        sa_flags;
+;               void     (*sa_restorer)(void);
+;           };
+
+;SGETMASK - manipulation of signal mask (obsolete)
+;Required : void
+;Return :  sgetmask() always successfully returns the signal mask.  ssetmask()
+;always succeeds, and returns the previous signal mask.
+%macro SGETMASK 0
+    mov eax,0x44            ;EAX = 0x44
+    int 0x80                ;Call System
+%endmacro
+
+;SSETMASK - manipulation of signal mask (obsolete)
+;Required : 1,newmask
+;Return : sgetmask() always successfully returns the signal mask.  ssetmask()
+;always succeeds, and returns the previous signal mask.
+%macro SSETMASK 1
+    mov eax,0x45            ;EAX = 0x45
+    mov ebx,%1              ;EBX = newmask
+    int 0x80                ;Call System
+%endmacro
+
+;sys_setreuid16 TO DO
+;sys_setregid16 TO DO
+
+;SIGSUSPEND - Wait for a signal
+;Required : 1,history 0,2 history 1,2 mask
+;Return : sigsuspend() always returns -1, with errno set to indicate the error
+;(normally, EINTR).
+%macro SIGSUSPEND 3
+    mov eax,0x48            ;EAX = 0x48
+    mov ebx,%1              ;EBX = history 0
+    mov ecx,%2              ;ECX = history 1
+    mov edx,%3              ;EDX = mask
+    int 0x80                ;Call System
+%endmacro
+
+;SIGPENDING - examine pending signals
+;Required : 1,set
+;Return : sigpending() returns 0 on success and -1 on error.  In the event of
+;an error, errno is set to indicate the cause.
+%macro SIGPENDING 1
+    mov eax,0x49            ;EAX = 0x49
+    mov ebx,%1              ;EBX = set
+    int 0x80                ;Call System
+%endmacro
+
+;SETHOSTNAME - Set hostname
+;Required : 1,name,2,len
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro SETHOSTNAME 2
+    mov eax,0x4A            ;EAX = 0x4A
+    mov ebx,%1              ;EBX = name
+    mov ecx,%2              ;ECX = len
+    int 0x80                ;Call System 
+%endmacro
+
+;SETRLIMIT - Set resource limits
+;Required : resource, rlim
+;Return : On success, these system calls return 0.  On error, -1 is returned,
+;and errno is set appropriately.
+%macro SETRLIMIT 2
+    mov eax,0x4B            ;EAX = 0x4B
+    mov ebx,%1              ;EBX = resource
+    mov ecx,%2              ;ECX = rlim
+    int 0x80                ;Call System
+%endmacro
+
+;sys_old_getrlimit TO DO
