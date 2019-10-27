@@ -93,6 +93,25 @@
 %define UMOUNT_NOFOLLOW	0x00000008	; Don't follow symlink on umount
 %define UMOUNT_UNUSED	0x80000000	; Flag guaranteed to be unused 
 
+;REBOOT MACROS
+
+;magic 1, magic 2
+%define LINUX_REBOOT_MAGIC1     0xfee1dead
+%define LINUX_REBOOT_MAGIC2     672274793
+%define LINUX_REBOOT_MAGIC2A    85072278
+%define LINUX_REBOOT_MAGIC2B    369367448
+%define LINUX_REBOOT_MAGIC2C    537993216
+
+;cmd argument
+%define LINUX_REBOOT_CMD_CAD_OFF  0
+%define LINUX_REBOOT_CMD_CAD_ON   0x89abcdef
+%define LINUX_REBOOT_CMD_HALT  0xcdef0123
+%define LINUX_REBOOT_CMD_KEXEC        0x45584543
+%define LINUX_REBOOT_CMD_POWER_OFF    0x4321fedc
+%define LINUX_REBOOT_CMD_RESTART     0x1234567
+%define LINUX_REBOOT_CMD_RESTART2   0xa1b2c3d4
+%define LINUX_REBOOT_CMD_SW_SUSPEND 0xd000fce1
+
 ;exit - terminate a program
 ;params : 1 ,int error code
 %macro EXIT 1
@@ -799,3 +818,182 @@
 %endmacro
 
 ;sys_old_getrlimit TO DO
+
+
+;GETRUSAGE - Get Resource Usage
+;Required : 1,who,2,usage
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro GETRUSAGE 2
+    mov eax,0x4D            ;EAX = 0x4c
+    mov ebx,%1              ;Ebx = Who
+    mov ecx,%2              ;ECX = Usage
+    int 0x80                ;Call System
+%endmacro
+
+;usage structure :
+
+;  struct rusage {
+;      struct timeval ru_utime; /* user CPU time used */
+;      struct timeval ru_stime; /* system CPU time used */
+;      long   ru_maxrss;        /* maximum resident set size */
+;      long   ru_ixrss;         /* integral shared memory size */
+;      long   ru_idrss;         /* integral unshared data size */
+;      long   ru_isrss;         /* integral unshared stack size */
+;      long   ru_minflt;        /* page reclaims (soft page faults) */
+;      long   ru_majflt;        /* page faults (hard page faults) */
+;      long   ru_nswap;         /* swaps */
+;      long   ru_inblock;       /* block input operations */
+;      long   ru_oublock;       /* block output operations */
+;      long   ru_msgsnd;        /* IPC messages sent */
+;      long   ru_msgrcv;        /* IPC messages received */
+;      long   ru_nsignals;      /* signals received */
+;      long   ru_nvcsw;         /* voluntary context switches */
+;      long   ru_nivcsw;        /* involuntary context switches */
+;  };
+
+;GETTIMEOFDAY - get time
+;Required : 1,*tv,2,*tz
+;Return : gettimeofday() and settimeofday() return 0 for success, or -1 for
+;failure (in which case errno is set appropriately).
+%macro GETTIMEOFDAY 2
+    mov eax,0x4E                ;Eax = 4E
+    mov ebx,%1                  ;Ebx = tv
+    mov ecx,%2                  ;Ecx = tz
+    int 0x80                    ;Call System
+%endmacro
+
+;Tv struct (time val):
+;struct timeval {
+;              time_t      tv_sec;     /* seconds */
+;              suseconds_t tv_usec;    /* microseconds */
+;   };
+
+;Tz struct (Time Zone):
+;struct timezone {
+;   int tz_minuteswest;     /* minutes west of Greenwich */
+;   int tz_dsttime;         /* type of DST correction */
+;};
+
+;SETTIMEOFDAY - Set Time
+;Required : 1,tv,2,tz
+;Return : gettimeofday() and settimeofday() return 0 for success, or -1 for
+;failure (in which case errno is set appropriately).
+%macro SETTIMEOFDAY 2
+    mov eax,0x4F                ;Eax = 0x4E
+    mov ebx,%1                  ;Ebx = tv
+    mov ecx,%2                  ;Ecx = tz
+    int 0x80                    ;Call System
+%endmacro
+
+;The tv struct is the same of 0x4E and also the tz struct is the same of 0x4E
+
+;GETGROUPS TO DO
+;SetGroups TO DO
+;OLD_SELECT TO DO
+
+;SYMLINK - MAKE A NEW NAME FOR A FILE
+;Required : 1,target, 2 ,linkpath
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro SYMLINK 2
+    mov eax,0x53            ;Eax = 0x53
+    mov ebx,%1              ;EBX = target
+    mov ecx,%2              ;Ecx = Linkpath
+    int 0x80                ;Call System
+%endmacro
+
+;LSTAT - get file status
+;Required : 1,pathname, 2,statbuf
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro LSTAT 2
+    mov eax,0x54            ;EAX = 0x54
+    mov ebx,%1              ;EBX = pathname
+    mov ecx,%2              ;Ecx = statbuf
+    int 0x80                ;Call System
+%endmacro
+
+
+;stat structure :
+; struct stat {
+;               dev_t     st_dev;         /* ID of device containing file */
+;               ino_t     st_ino;         /* Inode number */
+;               mode_t    st_mode;        /* File type and mode */
+;               nlink_t   st_nlink;       /* Number of hard links */
+;               uid_t     st_uid;         /* User ID of owner */
+;               gid_t     st_gid;         /* Group ID of owner */
+;               dev_t     st_rdev;        /* Device ID (if special file) */
+;               off_t     st_size;        /* Total size, in bytes */
+;               blksize_t st_blksize;     /* Block size for filesystem I/O */
+;               blkcnt_t  st_blocks;      /* Number of 512B blocks allocated */
+;
+;               /* Since Linux 2.6, the kernel supports nanosecond
+;                  precision for the following timestamp fields.
+;                  For the details before Linux 2.6, see NOTES. */
+;
+;               struct timespec st_atim;  /* Time of last access */
+;               struct timespec st_mtim;  /* Time of last modification */
+;               struct timespec st_ctim;  /* Time of last status change */
+;
+;           #define st_atime st_atim.tv_sec      /* Backward compatibility */
+;           #define st_mtime st_mtim.tv_sec
+;           #define st_ctime st_ctim.tv_sec
+;};
+
+
+;READLINK - READ VALUE OF A SYMBOLIC LINK
+;Required : 1,pathname,2,buf,3,bufsize
+;Return : On success, these calls return the number of bytes placed in buf.
+;(If the returned value equals bufsiz, then truncation may have
+;occurred.)  On error, -1 is returned and errno is set to indicate the
+;error.
+%macro READLINK 3
+    mov eax,0x55                ;EAX = 0x55
+    mov ebx,%1                  ;EBX = Pathname
+    mov ecx,%2                  ;ECX = buf
+    mov edx,%3                  ;EDX = bufsize
+    int 0x80                    ;Call System
+%endmacro
+
+
+;USELIB - Load shared library
+;Required : 1,library
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro USELIB 1
+    mov eax,0x56                ;EAX = 0x56
+    mov ebx,%1                  ;EBX = library
+    int 0x80                    ;Call System
+%endmacro
+
+
+;SWAPON - Start swapping to file/device
+;Required : 1,path,2,swapflag
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro SWAPON  2
+    mov eax,0x57                ;EAX = 0x57
+    mov ebx,%1                  ;EBX = Path
+    mov ecx,%2                  ;ECX = SwapFlag
+    int 0x80                    ;Call System
+%endmacro
+
+
+;REBOOT - reboot or enable/disable Ctrl-Alt-Del
+;Required : 1,magic,2,magic2,3,cmd,4,*arg
+;Return : For the values of cmd that stop or restart the system, a successful
+;call to reboot() does not return.  For the other cmd values, zero is
+;returned on success.  In all cases, -1 is returned on failure, and
+;errno is set appropriately.
+%macro REBOOT 4
+    mov eax,0x58                ;EAX = 0x58
+    mov ebx,%1                  ;EBX = magic
+    mov ecx,%2                  ;ECX = magic2
+    mov edx,%3                  ;EDX = cmd
+    mov esi,%4                  ;ESI = arg
+    int 0x80                    ;Call System
+%endmacro
+
+;sys_old_readdir TO DO
+;sys_old_mmap TO DO
