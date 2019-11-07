@@ -3,7 +3,7 @@
 segment .text
 name    db "file2.text",0
 name2   db "FILERENAMED.text",0
-
+text    db "JUST TRUNCED!",0
 
 
 segment .bss
@@ -21,6 +21,10 @@ _start:
     WRITE STDOUT,buffer,10
 
     CREAT name,O_CREAT
+    mov [fd],eax
+
+    WRITE fd,text,100
+    TRUNCATE name,8
 
     TIME time
 
