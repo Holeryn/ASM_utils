@@ -28,7 +28,7 @@
 %define S_IWOTH 00002   ;Write By Others
 %define S_IXOTH 00001   ;EXECUTE / SEARCH by Others 
 
-;INC for premission
+;INC for premission AND Set priority
 %define LOW_PRIORITY    19  ;LOW PRIORITY
 %define HIGH_PRIORITY   -20 ;High Priority 
 
@@ -177,6 +177,7 @@
 
 ;creat - Open and possibly create a file
 ;Params : 1, pathname, 2, mode
+;Return : fd (File descriptor)
 %macro CREAT 2
     mov     eax,0x08        ;EAX = 0x08
     mov     ebx,%1          ;ebx = Pathname
@@ -997,3 +998,125 @@
 
 ;sys_old_readdir TO DO
 ;sys_old_mmap TO DO
+;sys_old_readdir TO DO
+;sys_old_mmap TO DO
+
+;MUNMAP - unmap files or devices into memory
+;Required : 1,addr,2, length
+;Return : On success, mmap() returns a pointer to the mapped area.  On error,
+;On success, mmap() returns a pointer to the mapped area.  On error,
+;the value MAP_FAILED (that is, (void *) -1) is returned, and errno is
+;set to indicate the cause of the error;
+;On success, munmap() returns 0.  On failure, it returns -1, and errno
+;is set to indicate the cause of the error (probably to EINVAL).
+%macro MUNMAP 2
+    mov eax,0x5B                ;EAX = 0x5B
+    mov ebx,%1                  ;EBX = addr
+    mov ecx,%2                  ;ECX = length
+    int 0x80                    ;Call System
+%endmacro
+
+;---------------------------------------------------------------------------------------------------
+;With ftruncate(), the file must be open for writing; with truncate(),
+;the file must be writable.
+
+;TRUNCATE - Truncate a file to a specified length
+;Required : 1,path,2,length
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro TRUNCATE 2
+    mov eax,0x5C                ;EAX = 0x5C
+    mov ebx,%1                  ;EBX = path
+    mov ecx,%2                  ;ECX = lenght
+    int 0x80                    ;Call System
+%endmacro
+
+;FTRUNCATE - trucnate a file to a specified lenght
+;Required : 1, path,2 ,length
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro FTRUNCATE 2
+    mov eax,0x5D                ;EAX = 0x5D
+    mov ebx,%1                  ;EBX = path
+    mov ecx,%2                  ;ECX = length
+    int 0x80                    ;Call System
+%endmacro
+;---------------------------------------------------------------------------------------------------
+
+;FCHMOD - change permissions of a file
+;Required : 1,fd,2,mode
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro FCHMOD 2
+    mov eax,0x5E                ;EAX = 0x5E
+    mov ebx,%1                  ;EBX = fd
+    mov ecx,%2                  ;ECX = mode
+    int 0x80                    ;Call System
+%endmacro
+
+;sys_fchown16 TO DO
+
+;GETPRIORITY - get program scheduling priority
+;Required : 1,which,2,who
+;Return : On success, getpriority() returns the calling thread's nice value,
+;which may be a negative number.  On error, it returns -1 and sets
+;errno to indicate the cause of the error.  Since a successful call to
+;getpriority() can legitimately return the value -1, it is necessary
+;to clear the external variable errno prior to the call, then check it
+;afterward to determine if -1 is an error or a legitimate value.
+;setpriority() returns 0 on success.  On error, it returns -1 and sets
+;errno to indicate the cause of the error.
+%macro GETPRIORITY 2
+    mov eax,0x60                ;EAX = 0x60
+    mov ebx,%1                  ;EBX = which
+    mov ecx,%2                  ;ECX = Who
+    int 0x80                    ;Call System
+%endmacro
+
+;SETPRIORITY - SET program scheduling priority
+;Required : 1,which,2,who,3,prio
+;Return : On success, getpriority() returns the calling thread's nice value,
+;which may be a negative number.  On error, it returns -1 and sets
+;errno to indicate the cause of the error.  Since a successful call to
+;getpriority() can legitimately return the value -1, it is necessary
+;to clear the external variable errno prior to the call, then check it
+;afterward to determine if -1 is an error or a legitimate value.
+;setpriority() returns 0 on success.  On error, it returns -1 and sets
+;errno to indicate the cause of the error.
+%macro SETPRIORITY 2
+    mov eax,0x61                ;EAX = 0x61
+    mov ebx,%1                  ;EBX = which
+    mov ecx,%2                  ;ECX = Who
+    mov edx,%3                  ;EDX = prio
+    int 0x80                    ;Call System
+%endmacro
+
+;STATFS - get filesystem statistics
+;Requires : 1,path,2,struct statfs buf
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro STATFS 2
+    mov eax,0x63                ;EAX = 0x62
+    mov ebx,%1                  ;EBX = path
+    mov ecx,%2                  ;buf struct
+    int 0x80                    ;Call System
+%endmacro
+
+;statfs structure :
+;           struct statfs {
+;               __fsword_t f_type;    /* Type of filesystem (see below) */
+;               __fsword_t f_bsize;   /* Optimal transfer block size */
+;               fsblkcnt_t f_blocks;  /* Total data blocks in filesystem */
+;               fsblkcnt_t f_bfree;   /* Free blocks in filesystem */
+;               fsblkcnt_t f_bavail;  /* Free blocks available to
+;                                        unprivileged user */
+;               fsfilcnt_t f_files;   /* Total file nodes in filesystem */
+;               fsfilcnt_t f_ffree;   /* Free file nodes in filesystem */
+;               fsid_t     f_fsid;    /* Filesystem ID */
+;               __fsword_t f_namelen; /* Maximum length of filenames */
+;               __fsword_t f_frsize;  /* Fragment size (since Linux 2.6) */
+;               __fsword_t f_flags;   /* Mount flags of filesystem
+;                                        (since Linux 2.6.36) */
+;               __fsword_t f_spare[xxx];
+;                               /* Padding bytes reserved for future use */
+;           };
