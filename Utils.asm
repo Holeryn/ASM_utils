@@ -1120,3 +1120,36 @@
 ;               __fsword_t f_spare[xxx];
 ;                               /* Padding bytes reserved for future use */
 ;           };
+
+;FSTATFS : Get FIleSystem Statistics
+;Requires : 1,fd,2,struct statfs buf (The sam structire of STATFS)
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro FSTATFS 2
+    mov eax,0x64                ;EAX = 0x64
+    mov ebx,%1                  ;ebx = fd
+    mov ecx,%2                  ;ecx = buf
+    int 0x80                    ;Call System
+%endmacro
+
+;IOPERM : Set port input/output pemission
+;Required : 1, from,2 num, 3, turn_on
+;Return : On success, zero is returned.  On error, -1 is returned, and errno is
+;set appropriately.
+%macro IOPERM 3
+    mov eax,0x65                ;EAX = 0x65
+    mov ebx,%1                  ;EBX = from
+    mov ecx,%2                  ;ECX = num
+    mov edx,%3                  ;EDX = turn_on
+    int 0x80                    ;Call System
+%endmacro
+
+;SOCKETCALL - Socket system calls
+;Required : call, args
+;Return : VOID
+%macro SOCKETCALL 2
+    mov eax,0x66                ;EAX = 0x66
+    mov ebx,%1                  ;EBX = call
+    mov ecx,%2                  ;ECX = args
+    int 0x80                    ;Call System
+%endmacro
