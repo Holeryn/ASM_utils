@@ -1153,3 +1153,14 @@
     mov ecx,%2                  ;ECX = args
     int 0x80                    ;Call System
 %endmacro
+
+
+;SYSLOG - Read and/or clear kernel message rig buffer; set console log level
+;Required: call,args
+;Return : int
+%macro SYSLOG 2
+    mov eax,0x67                ;EAX = 0x67
+    mov ebx,%1                  ;EBX = call
+    mov ecx,%2                  ;ECX = args
+    int 0x80                    ;Call System
+%endmacro
