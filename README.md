@@ -7,7 +7,7 @@ compile with make , (If you want to use the prova.asm program)
 
 if you are using a x86_64 processor you can use this
 
-```$ make 8086```
+```$ make 8064```
 
 if you are using a 80386 processor you can use this
 
